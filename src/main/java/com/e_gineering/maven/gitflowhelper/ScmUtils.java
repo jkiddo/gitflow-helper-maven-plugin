@@ -11,14 +11,11 @@ import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.log.ScmLogDispatcher;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProvider;
-import org.apache.maven.scm.provider.git.command.info.GitInfoItem;
 import org.apache.maven.scm.provider.git.gitexe.command.branch.GitBranchCommand;
 import org.apache.maven.scm.provider.git.repository.GitScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.BaseRepositoryBuilder;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.util.FS;
 
 public abstract class ScmUtils {
 
