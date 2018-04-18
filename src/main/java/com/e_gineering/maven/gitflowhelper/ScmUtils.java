@@ -53,9 +53,10 @@ public abstract class ScmUtils {
         
        
 		try(Git git = new Git(new FileRepository(new BaseRepositoryBuilder<>().findGitDir().setup()))) {
-			return git.remoteList().call().stream().findFirst().get().getURIs().stream().findFirst().get()
+			String url = git.remoteList().call().stream().findFirst().get().getURIs().stream().findFirst().get()
 					.toASCIIString();
-			log.debug("Autodetected remote origin to: " + connectionUrl);
+			log.debug("Autodetected remote origin to: " + url);
+			return url;
 		} catch (IllegalArgumentException e) {
 			log.warn("Could not autodetect remote origin", e);
 		} catch (IOException e) {
