@@ -1,5 +1,7 @@
 package com.e_gineering.maven.gitflowhelper;
 
+import java.io.IOException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -11,6 +13,12 @@ import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.command.branch.GitBranchCommand;
 import org.apache.maven.scm.provider.git.repository.GitScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.BaseRepositoryBuilder;
 
 public abstract class ScmUtils {
 
@@ -25,6 +33,7 @@ public abstract class ScmUtils {
      * @param log        A Log to write to
      * @return The developerConnection, if none set, the connection, if none set, then the expression, <code>"${env.GIT_URL}"</code>
      */
+    @SuppressWarnings({ "resource" })
     public static String resolveUrlOrExpression(final MavenProject project, final Log log) {
         String connectionUrl = null;
 
@@ -41,6 +50,18 @@ public abstract class ScmUtils {
                 return connectionUrl;
             }
         }
+        
+        try(Git git = new Git(new FileRepository(new BaseRepositoryBuilder<>().findGitDir().setup()))) {
+			connectionUrl = git.remoteList().call().stream().findFirst().get().getURIs().stream().findFirst().get()
+					.toASCIIString();
+			log.debug("Autodetected remote origin to: " + connectionUrl);
+		} catch (IllegalArgumentException e) {
+			log.warn("Could not autodetect remote origin", e);
+		} catch (IOException e) {
+			log.warn("Could not autodetect remote origin", e);
+		} catch (GitAPIException e) {
+			log.warn("Could not autodetect remote origin", e);
+		}
 
         return DEFAULT_URL_EXPRESSION;
     }
