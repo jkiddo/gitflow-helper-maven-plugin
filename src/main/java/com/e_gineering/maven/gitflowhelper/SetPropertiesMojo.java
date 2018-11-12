@@ -15,7 +15,7 @@ import java.util.Properties;
 /**
  * Set a project property value based upon the current ${env.GIT_BRANCH} resolution.
  */
-@Mojo(name = "set-properties", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
+@Mojo(name = "set-properties", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class SetPropertiesMojo extends AbstractGitflowBranchMojo {
 
     /**
@@ -79,13 +79,13 @@ public class SetPropertiesMojo extends AbstractGitflowBranchMojo {
     private File developmentBranchPropertyFile;
 
     /**
-     * Properties to be applied if executing against a non-releasable (feature) branch
+     * Properties to be applied if executing against a non-releasable branch
      */
     @Parameter(property = "otherBranchProperties")
     private Properties otherBranchProperties;
 
     /**
-     * A Property file to load if executing against a non-releasable (feature) branch
+     * A Property file to load if executing against a non-releasable branch
      */
     @Parameter(property = "otherBranchPropertyFile")
     private File otherBranchPropertyFile;
@@ -122,10 +122,10 @@ public class SetPropertiesMojo extends AbstractGitflowBranchMojo {
 
 
     @Override
-    protected void execute(final GitBranchType type, final String gitBranch, final String branchPattern) throws MojoExecutionException, MojoFailureException {
+    protected void execute(final GitBranchInfo gitBranchInfo) throws MojoExecutionException, MojoFailureException {
         Properties toInject = null;
         File toLoad = null;
-        switch (type) {
+        switch (gitBranchInfo.getType()) {
             case SUPPORT: {
                 toInject = supportBranchProperties;
                 toLoad = supportBranchPropertyFile;

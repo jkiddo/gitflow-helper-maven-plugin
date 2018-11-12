@@ -26,36 +26,11 @@ import java.util.Properties;
  */
 public class PropertyResolver {
 
-    /**
-     * Retrieves a property value, replacing values like ${token} using the Properties to look them up. Shamelessly
-     * adapted from:
-     * http://maven.apache.org/plugins/maven-war-plugin/xref/org/apache/maven/plugin/war/PropertyUtils.html It will
-     * leave unresolved properties alone, trying for System properties, and environment variables and implements
-     * reparsing (in the case that the value of a property contains a key), and will not loop endlessly on a pair like
-     * test = ${test}
-     *
-     * @param key         property key
-     * @param properties  project properties
-     * @param environment environment variables
-     * @return resolved property value
-     * @throws IllegalArgumentException when properties are circularly defined
-     */
-    public String getPropertyValue(String key, Properties properties, Properties environment) {
-        String value = properties.getProperty(key);
-
-        ExpansionBuffer buffer = new ExpansionBuffer(value);
-
-        CircularDefinitionPreventer circularDefinitionPreventer =
-                new CircularDefinitionPreventer().visited(key, value);
-
-        return resolveValue(buffer, circularDefinitionPreventer, properties, environment);
-    }
-
-    public String resolveValue(String value, Properties properties, Properties environment) {
+    public static String resolveValue(String value, Properties properties, Properties environment) {
         return resolveValue(new ExpansionBuffer(value), new CircularDefinitionPreventer(), properties, environment);
     }
 
-    private String resolveValue(ExpansionBuffer buffer, CircularDefinitionPreventer circularDefinitionPreventer, Properties properties, Properties environment) {
+    private static String resolveValue(ExpansionBuffer buffer, CircularDefinitionPreventer circularDefinitionPreventer, Properties properties, Properties environment) {
         while (buffer.hasMoreLegalPlaceholders()) {
             String newKey = buffer.extractPropertyKey();
             String newValue = fromPropertiesThenSystemThenEnvironment(newKey, properties, environment);
@@ -69,7 +44,7 @@ public class PropertyResolver {
 
     }
 
-    private String fromPropertiesThenSystemThenEnvironment(String key, Properties properties, Properties environment) {
+    private static String fromPropertiesThenSystemThenEnvironment(String key, Properties properties, Properties environment) {
         String value = properties.getProperty(key);
 
         // try global environment

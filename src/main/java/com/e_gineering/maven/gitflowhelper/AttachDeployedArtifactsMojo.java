@@ -1,5 +1,6 @@
 package com.e_gineering.maven.gitflowhelper;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Execute;
@@ -14,8 +15,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 @Execute(phase = LifecyclePhase.CLEAN)
 public class AttachDeployedArtifactsMojo extends AbstractGitflowBasedRepositoryMojo {
     @Override
-    protected void execute(GitBranchType type, String gitBranch, String branchPattern) throws MojoExecutionException, MojoFailureException {
-        switch (type) {
+    protected void execute(final GitBranchInfo gitBranchInfo) throws MojoExecutionException, MojoFailureException {
+        switch (gitBranchInfo.getType()) {
             case MASTER:
             case SUPPORT:
             {
@@ -33,6 +34,14 @@ public class AttachDeployedArtifactsMojo extends AbstractGitflowBasedRepositoryM
                 getLog().info("Attaching artifacts from snapshot repository...");
                 attachExistingArtifacts(snapshotDeploymentRepository, true);
                 break;
+            }
+            case OTHER: {
+                String otherBranchesToDeploy = resolveExpression(otherDeployBranchPattern);
+                if (!"".equals(otherBranchesToDeploy) && gitBranchInfo.getName().matches(otherBranchesToDeploy)) {
+                    getLog().info("Attaching branch artifacts from snapshot repository...");
+                    attachExistingArtifacts(snapshotDeploymentRepository, true);
+                    break;
+                }
             }
             default: {
                 getLog().info("Attaching Artifacts from local repository...");
